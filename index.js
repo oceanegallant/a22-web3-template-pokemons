@@ -11,6 +11,11 @@ function sync(pokemons) {
         const li = document.createElement('li');
         li.className = 'list-group-item';
         li.appendChild(document.createTextNode(elt.name));
+        const img = document.createElement('img');
+        img.alt = elt.name;
+        img.src = elt.sprites.front_default;
+        li.appendChild(img);
+        
         return li;
     });
     document.getElementById('liste_pokemons').replaceChildren(...htmlList);
@@ -46,8 +51,16 @@ function next() {
  *        arguement le tableau de pokemon reçu.
  * @param {*} route La route à appeler avec fetch
  */
-function fetchPokemon(route) {
-    // TODO
+ function fetchPokemon(route) {
+    const res = await fetch(route);
+    const data = await res.json();
+
+    linkNext = data.next;
+    linkPrevious = data.previous;
+
+    const results = await promise.all(data.result.map(pokemon => fetch(pokemon.url)))
+    const details = await promise.all(results.map(res => res.json()));
+    sync(details);
 }
 
 fetchPokemon('https://pokeapi.co/api/v2/pokemon?offset=0&limit=10')
